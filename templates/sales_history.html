@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales History - Garment Billing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/sales_history.css' %}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo-box">G</div>
+                <h3>GarmentStore</h3>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="{% url 'dashboard' %}" class="menu-item">
+                    <span class="icon"></span> Dashboard
+                </a>
+                <a href="{% url 'categories_list' %}" class="menu-item">
+                    <span class="icon"></span> Categories
+                </a>
+                <a href="{% url 'subcategories_list' %}" class="menu-item">
+                    <span class="icon"></span> Subcategories
+                </a>
+                <a href="{% url 'products_list' %}" class="menu-item">
+                    <span class="icon"></span> Products
+                </a>
+                <a href="{% url 'billing_screen' %}" class="menu-item">
+                    <span class="icon"></span> Billing
+                </a>
+                <a href="{% url 'sales_history' %}" class="menu-item active">
+                    <span class="icon"></span> Sales History
+                </a>
+                <a href="{% url 'reports_dashboard' %}" class="menu-item">
+                    <span class="icon"></span> Reports
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'change_password' %}" class="btn-action"> Change Password</a>
+                <a href="{% url 'logout' %}" class="btn-logout"> Logout</a>
+            </div>
+        </aside>
+
+        
+        <main class="main-content">
+            <header class="top-nav">
+                <div class="user-greeting">
+                    <h1>Sales Ledger</h1>
+                    <p>Track history, review store turnover, and analyze profits.</p>
+                </div>
+                <div class="shop-badge">
+                    {% if shop.logo %}
+                        <img src="{{ shop.logo.url }}" alt="{{ shop.shop_name }} Logo" class="nav-logo">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ shop.shop_name|slice:":1" }}</div>
+                    {% endif %}
+                    <span class="badge-text">{{ shop.shop_name }}</span>
+                </div>
+            </header>
+
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Sales Summary Widgets -->
+            <div class="summary-widgets">
+                <div class="widget-card turnover">
+                    <span class="widget-lbl">Total Turnover</span>
+                    <h2 class="widget-val">Rs. {{ grand_total_sales }}</h2>
+                    <span class="widget-icon"></span>
+                </div>
+                <div class="widget-card profit">
+                    <span class="widget-lbl">Net Store Profits</span>
+                    <h2 class="widget-val">Rs. {{ grand_total_profits }}</h2>
+                    <span class="widget-icon"></span>
+                </div>
+            </div>
+
+            
+            <div class="grid-card history-card">
+                <div class="card-header-accent">
+                    <h3>Invoices History Log</h3>
+                </div>
+                <div class="table-container">
+                    {% if invoices %}
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice No.</th>
+                                    <th>Date & Time</th>
+                                    <th>Customer Name</th>
+                                    <th>Payment Mode</th>
+                                    <th>Total Amount</th>
+                                    <th>Total Profit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in invoices %}
+                                    <tr>
+                                        <td class="inv-id-cell">{{ invoice.invoice_number }}</td>
+                                        <td>{{ invoice.date|date:"d-M-Y H:i" }}</td>
+                                        <td class="cust-name-cell">{{ invoice.customer_name }}</td>
+                                        <td><span class="pm-badge">{{ invoice.payment_method }}</span></td>
+                                        <td class="total-amount-cell">Rs. {{ invoice.total_amount }}</td>
+                                        <td class="profit-cell text-success">Rs. {{ invoice.total_profit }}</td>
+                                        <td>
+                                            <div class="actions-wrapper">
+                                                <a href="{% url 'invoice_detail' invoice.invoice_number %}" class="btn-view-inline"> View</a>
+                                                <a href="{% url 'invoice_print' invoice.invoice_number %}" target="_blank" class="btn-print-inline"> Print</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="empty-state">
+                            <p>No sales history recorded yet. Open the Billing screen to make a sale!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

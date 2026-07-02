@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Subcategories - Garment Billing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/subcategories.css' %}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo-box">G</div>
+                <h3>GarmentStore</h3>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="{% url 'dashboard' %}" class="menu-item">
+                    <span class="icon"></span> Dashboard
+                </a>
+                <a href="{% url 'categories_list' %}" class="menu-item">
+                    <span class="icon"></span> Categories
+                </a>
+                <a href="{% url 'subcategories_list' %}" class="menu-item active">
+                    <span class="icon"></span> Subcategories
+                </a>
+                <a href="{% url 'products_list' %}" class="menu-item">
+                    <span class="icon"></span> Products
+                </a>
+                <a href="{% url 'billing_screen' %}" class="menu-item">
+                    <span class="icon"></span> Billing
+                </a>
+                <a href="{% url 'sales_history' %}" class="menu-item">
+                    <span class="icon"></span> Sales History
+                </a>
+                <a href="{% url 'reports_dashboard' %}" class="menu-item">
+                    <span class="icon"></span> Reports
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'change_password' %}" class="btn-action"> Change Password</a>
+                <a href="{% url 'logout' %}" class="btn-logout"> Logout</a>
+            </div>
+        </aside>
+
+
+        <main class="main-content">
+            <header class="top-nav">
+                <div class="user-greeting">
+                    <h1>Product Subcategories</h1>
+                    <p>Link and manage subcategories under main categories.</p>
+                </div>
+                <div class="shop-badge">
+                    {% if shop.logo %}
+                        <img src="{{ shop.logo.url }}" alt="{{ shop.shop_name }} Logo" class="nav-logo">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ shop.shop_name|slice:":1" }}</div>
+                    {% endif %}
+                    <span class="badge-text">{{ shop.shop_name }}</span>
+                </div>
+            </header>
+
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="subcategories-grid">
+                <!-- Add Subcategory Form Card -->
+                <div class="grid-card add-card">
+                    <div class="card-header-accent">
+                        <h3>Add New Subcategory</h3>
+                    </div>
+                    {% if categories %}
+                        <form action="{% url 'subcategories_list' %}" method="POST">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="category">Parent Category</label>
+                                <select id="category" name="category" required>
+                                    <option value="" disabled selected>Select category...</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="name">Subcategory Name</label>
+                                <input type="text" id="name" name="name" placeholder="e.g. T-Shirts, Formal, Casual" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Add Subcategory</button>
+                        </form>
+                    {% else %}
+                        <div class="alert-warning">
+                            <p>You must create at least one Category before adding subcategories!</p>
+                            <a href="{% url 'categories_list' %}" class="btn-primary-link">Create Category</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Subcategories List Card -->
+                <div class="grid-card list-card">
+                    <div class="card-header-accent">
+                        <h3>Existing Subcategories</h3>
+                    </div>
+                    <div class="table-container">
+                        {% if subcategories %}
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>S.No.</th>
+                                        <th>Category</th>
+                                        <th>Subcategory</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for subcategory in subcategories %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td class="parent-cat-cell">{{ subcategory.category.name }}</td>
+                                            <td class="subcat-name-cell">{{ subcategory.name }}</td>
+                                            <td>
+                                                <div class="actions-wrapper">
+                                                    <a href="{% url 'edit_subcategory' subcategory.id %}" class="btn-edit-inline"> Edit</a>
+                                                    <a href="{% url 'delete_subcategory' subcategory.id %}" class="btn-delete-inline" onclick="return confirm('Are you sure you want to delete this subcategory? All related products will be deleted!')"> Delete</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="empty-state">
+                                <p>No subcategories found. Add one to link under a category!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

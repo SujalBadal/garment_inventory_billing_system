@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Login - Garment Billing System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="card-header">
+                <h2>Welcome Back</h2>
+                <p>Login to manage your garment store inventory</p>
+            </div>
+            
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form action="{% url 'login' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="enter email address" required autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="enter your password" required autocomplete="current-password">
+                </div>
+                
+                <div class="forgot-link-container">
+                    <a href="{% url 'forgot_password' %}" class="forgot-link">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+            
+            <div class="card-footer">
+                <p>Don't have a shop registered? <a href="{% url 'signup' %}">Register Shop</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

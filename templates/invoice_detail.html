@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ invoice.invoice_number }} - Garment Billing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/invoice_detail.css' %}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo-box">G</div>
+                <h3>GarmentStore</h3>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="{% url 'dashboard' %}" class="menu-item">
+                    <span class="icon"></span> Dashboard
+                </a>
+                <a href="{% url 'categories_list' %}" class="menu-item">
+                    <span class="icon"></span> Categories
+                </a>
+                <a href="{% url 'subcategories_list' %}" class="menu-item">
+                    <span class="icon"></span> Subcategories
+                </a>
+                <a href="{% url 'products_list' %}" class="menu-item">
+                    <span class="icon"></span> Products
+                </a>
+                <a href="{% url 'billing_screen' %}" class="menu-item active">
+                    <span class="icon"></span> Billing
+                </a>
+                <a href="{% url 'sales_history' %}" class="menu-item">
+                    <span class="icon"></span> Sales History
+                </a>
+                <a href="{% url 'reports_dashboard' %}" class="menu-item">
+                    <span class="icon"></span> Reports
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'change_password' %}" class="btn-action"> Change Password</a>
+                <a href="{% url 'logout' %}" class="btn-logout"> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav">
+                <div class="user-greeting">
+                    <h1>Invoice Details</h1>
+                    <p>Review customer billing summary.</p>
+                </div>
+                <div class="shop-badge">
+                    {% if shop.logo %}
+                        <img src="{{ shop.logo.url }}" alt="{{ shop.shop_name }} Logo" class="nav-logo">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ shop.shop_name|slice:":1" }}</div>
+                    {% endif %}
+                    <span class="badge-text">{{ shop.shop_name }}</span>
+                </div>
+            </header>
+
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="invoice-container">
+                <div class="grid-card invoice-card">
+                    <!-- Invoice Header -->
+                    <div class="invoice-header">
+                        <div class="store-info">
+                            {% if shop.logo %}
+                                <img src="{{ shop.logo.url }}" alt="{{ shop.shop_name }} Logo" class="invoice-logo">
+                            {% endif %}
+                            <h2>{{ shop.shop_name }}</h2>
+                            <p>{{ shop.address }}</p>
+                            <p>Phone: {{ shop.phone }} | Email: {{ shop.email }}</p>
+                        </div>
+                        <div class="invoice-meta">
+                            <h3 class="inv-num">{{ invoice.invoice_number }}</h3>
+                            <p>Date: {{ invoice.date|date:"d-M-Y H:i" }}</p>
+                            <p>Payment: <span class="pm-badge">{{ invoice.payment_method }}</span></p>
+                        </div>
+                    </div>
+
+                    <hr class="divider">
+
+                    <!-- Customer Info -->
+                    <div class="customer-info">
+                        <h4>Billed To:</h4>
+                        <p class="cust-name">{{ invoice.customer_name }}</p>
+                    </div>
+
+                    <!-- Items Table -->
+                    <div class="table-container">
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>S.No.</th>
+                                    <th>Product ID</th>
+                                    <th>Item Details</th>
+                                    <th>Rate</th>
+                                    <th>Qty</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td class="item-id">{{ item.product.product_id }}</td>
+                                        <td class="item-name">{{ item.product.name }}</td>
+                                        <td>Rs. {{ item.price }}</td>
+                                        <td>{{ item.qty }}</td>
+                                        <td class="item-total">Rs. {% widthratio item.price 1 item.qty %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Invoice Summary -->
+                    <div class="invoice-summary">
+                        <div class="total-row">
+                            <span>Grand Total:</span>
+                            <span class="total-price">Rs. {{ invoice.total_amount }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="invoice-actions">
+                    <a href="{% url 'invoice_print' invoice.invoice_number %}" target="_blank" class="btn-print-invoice">🖨️ Print Bill / Save PDF</a>
+                    <a href="{% url 'billing_screen' %}" class="btn-new-bill">New Bill</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

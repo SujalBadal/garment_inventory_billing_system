@@ -1,0 +1,158 @@
+body {
+    background: #ffffff;
+    color: #000000;
+    font-family: 'Outfit', sans-serif;
+    margin: 0;
+    padding: 20px;
+    font-size: 14px;
+    -webkit-print-color-adjust: exact;
+}
+
+.print-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.store-details h2 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.store-address {
+    max-width: 300px;
+    line-height: 1.4;
+    color: #333333;
+}
+
+.invoice-meta {
+    text-align: right;
+}
+
+.inv-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #000000;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.inv-num {
+    font-size: 16px;
+}
+
+.divider {
+    border: 0;
+    border-top: 2px solid #000000;
+    margin: 20px 0;
+}
+
+.customer-section {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 12px;
+    color: #555555;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.customer-name {
+    font-size: 16px;
+}
+
+.print-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.print-table th, .print-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #dddddd;
+    text-align: left;
+}
+
+.print-table th {
+    font-weight: 700;
+    border-bottom: 2px solid #000000;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.id-cell {
+    font-family: monospace;
+}
+
+.name-cell {
+    font-weight: 600;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.print-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+
+.terms {
+    max-width: 400px;
+    font-size: 11px;
+    color: #555555;
+    line-height: 1.4;
+}
+
+.totals {
+    text-align: right;
+    min-width: 250px;
+}
+
+.total-row {
+    font-size: 16px;
+    font-weight: 700;
+    border-top: 2px solid #000000;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.total-value {
+    font-size: 20px;
+}
+
+.signature-block {
+    margin-top: 60px;
+    text-align: right;
+    font-size: 12px;
+}
+
+.sig-line {
+    border-top: 1px solid #000000;
+    width: 200px;
+    margin: 40px 0 5px auto;
+}
+
+/* Print Specific Rules */
+@media print {
+    body {
+        padding: 0;
+    }
+    
+    @page {
+        margin: 1.5cm;
+    }
+}

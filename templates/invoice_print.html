@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Invoice {{ invoice.invoice_number }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/invoice_print.css' %}">
+</head>
+<body onload="window.print()">
+    <div class="print-container">
+        <!-- Invoice Header -->
+        <div class="print-header">
+            <div class="store-details">
+                <h2>{{ shop.shop_name }}</h2>
+                <p class="store-address">{{ shop.address }}</p>
+                <p>Phone: {{ shop.phone }} | Email: {{ shop.email }}</p>
+            </div>
+            <div class="invoice-meta">
+                <h1 class="inv-title">INVOICE</h1>
+                <p class="inv-num"><strong>Invoice No:</strong> {{ invoice.invoice_number }}</p>
+                <p><strong>Date:</strong> {{ invoice.date|date:"d-M-Y H:i" }}</p>
+                <p><strong>Payment Mode:</strong> {{ invoice.payment_method }}</p>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Customer Section -->
+        <div class="customer-section">
+            <p class="section-title">Billed To:</p>
+            <p class="customer-name"><strong>{{ invoice.customer_name }}</strong></p>
+        </div>
+
+        <!-- Bill Items Table -->
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th>S.No.</th>
+                    <th>Product ID</th>
+                    <th>Item Description</th>
+                    <th class="text-right">Rate</th>
+                    <th class="text-right">Qty</th>
+                    <th class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td class="id-cell">{{ item.product.product_id }}</td>
+                        <td class="name-cell">{{ item.product.name }}</td>
+                        <td class="text-right">Rs. {{ item.price }}</td>
+                        <td class="text-right">{{ item.qty }}</td>
+                        <td class="text-right">Rs. {% widthratio item.price 1 item.qty %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Bill Footer / Totals -->
+        <div class="print-footer">
+            <div class="terms">
+                <p><strong>Terms & Conditions:</strong></p>
+                <p>1. Goods once sold will not be taken back.</p>
+                <p>2. Please check clothes before leaving the store.</p>
+            </div>
+            <div class="totals">
+                <div class="total-row">
+                    <span class="total-label">Grand Total:</span>
+                    <span class="total-value">Rs. {{ invoice.total_amount }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature/Stamp placeholder -->
+        <div class="signature-block">
+            <p>For {{ shop.shop_name }}</p>
+            <div class="sig-line"></div>
+            <p>Authorized Signatory</p>
+        </div>
+    </div>
+</body>
+</html>

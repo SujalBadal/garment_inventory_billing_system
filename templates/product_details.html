@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Garment Billing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/product_details.css' %}">
+</head>
+<body>
+    <div class="details-wrapper">
+        <div class="details-card">
+            <div class="card-header">
+                <h2>Product Profile</h2>
+                <p>Detailed view of garment parameters & barcode data</p>
+            </div>
+
+            <div class="details-body">
+                <div class="preview-column">
+                    <!-- Product Image Section -->
+                    <div class="image-box">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="large-image">
+                        {% else %}
+                            <div class="image-placeholder">No Image Available</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- QR section -->
+                    <div class="qr-box">
+                        {% if product.qr_code %}
+                            <img src="{{ product.qr_code.url }}" alt="QR Code Label" class="qr-image">
+                            <span class="qr-caption">Scan QR to scan item</span>
+                        {% else %}
+                            <div class="qr-placeholder">QR Code Not Generated</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="info-column">
+                    <div class="badge-row">
+                        <span class="id-badge">{{ product.product_id }}</span>
+                        {% if product.qty <= 5 %}
+                            <span class="stock-badge danger">Low Stock Warning</span>
+                        {% else %}
+                            <span class="stock-badge success">In Stock</span>
+                        {% endif %}
+                    </div>
+
+                    <h1 class="product-name">{{ product.name }}</h1>
+
+                    <div class="specs-grid">
+                        <div class="spec-item">
+                            <span class="spec-label">Category</span>
+                            <span class="spec-value">{{ product.category.name }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Subcategory</span>
+                            <span class="spec-value">{{ product.subcategory.name }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Purchase Price</span>
+                            <span class="spec-value highlight-purchase">Rs. {{ product.purchase_price }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Selling Price</span>
+                            <span class="spec-value highlight-selling">Rs. {{ product.selling_price }}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Stock Quantity</span>
+                            <span class="spec-value">{{ product.qty }} units</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Rack Location</span>
+                            <span class="spec-value">{{ product.rack_location }}</span>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <a href="{% url 'edit_product' product.product_id %}" class="btn-primary">Edit Product</a>
+                        <a href="{% url 'products_list' %}" class="btn-secondary">Back to List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

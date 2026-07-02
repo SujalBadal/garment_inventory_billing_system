@@ -1,0 +1,532 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports Dashboard - Garment Billing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/reports_dashboard.css' %}">
+</head>
+<body>
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo-box">G</div>
+                <h3>GarmentStore</h3>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="{% url 'dashboard' %}" class="menu-item">
+                    <span class="icon"></span> Dashboard
+                </a>
+                <a href="{% url 'categories_list' %}" class="menu-item">
+                    <span class="icon"></span> Categories
+                </a>
+                <a href="{% url 'subcategories_list' %}" class="menu-item">
+                    <span class="icon"></span> Subcategories
+                </a>
+                <a href="{% url 'products_list' %}" class="menu-item">
+                    <span class="icon"></span> Products
+                </a>
+                <a href="{% url 'billing_screen' %}" class="menu-item">
+                    <span class="icon"></span> Billing
+                </a>
+                <a href="{% url 'sales_history' %}" class="menu-item">
+                    <span class="icon"></span> Sales History
+                </a>
+                <a href="{% url 'reports_dashboard' %}" class="menu-item active">
+                    <span class="icon"></span> Reports
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'change_password' %}" class="btn-action"> Change Password</a>
+                <a href="{% url 'logout' %}" class="btn-logout"> Logout</a>
+            </div>
+        </aside>
+
+      
+        <main class="main-content">
+           
+            <header class="top-nav">
+                <div class="user-greeting">
+                    <h1>Reports & Analytics</h1>
+                    <p>Live summary of store turnover, profits, stock statistics, and logs.</p>
+                </div>
+                <div class="shop-badge">
+                    {% if shop.logo %}
+                        <img src="{{ shop.logo.url }}" alt="{{ shop.shop_name }} Logo" class="nav-logo">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ shop.shop_name|slice:":1" }}</div>
+                    {% endif %}
+                    <span class="badge-text">{{ shop.shop_name }}</span>
+                </div>
+            </header>
+
+            
+            <div class="metrics-grid">
+                <div class="metric-card bg-gradient-blue">
+                    <div class="metric-info">
+                        <span class="metric-label">Total Unique Products</span>
+                        <h2 class="metric-val">{{ total_products }}</h2>
+                    </div>
+                    <div class="metric-icon"></div>
+                </div>
+                <div class="metric-card bg-gradient-purple">
+                    <div class="metric-info">
+                        <span class="metric-label">Current Total Stock</span>
+                        <h2 class="metric-val">{{ total_stock }} <span class="unit-text">Units</span></h2>
+                    </div>
+                    <div class="metric-icon"></div>
+                </div>
+                <div class="metric-card bg-gradient-green">
+                    <div class="metric-info">
+                        <span class="metric-label">Today's Total Sales</span>
+                        <h2 class="metric-val">Rs. {{ today_sales }}</h2>
+                    </div>
+                    <div class="metric-icon"></div>
+                </div>
+                <div class="metric-card bg-gradient-orange">
+                    <div class="metric-info">
+                        <span class="metric-label">Today's Net Profit</span>
+                        <h2 class="metric-val">Rs. {{ today_profit }}</h2>
+                    </div>
+                    <div class="metric-icon"></div>
+                </div>
+            </div>
+
+            <!-- Double Column layout for best sellers, low stock, and recent invoices -->
+            <div class="reports-layout-grid">
+                <!-- Left side columns -->
+                <div class="layout-column">
+                    <!-- Low Stock Alerts -->
+                    <div class="grid-card low-stock-card">
+                        <div class="card-header-accent border-orange">
+                            <h3> Low Stock Alert (Qty &le; 5)</h3>
+                            <span class="badge-count bg-orange">{{ low_stock_products.count }} items</span>
+                        </div>
+                        <div class="card-body">
+                            {% if low_stock_products %}
+                                <div class="table-scroll">
+                                    <table class="simple-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product ID</th>
+                                                <th>Name</th>
+                                                <th>Category</th>
+                                                <th>Stock Left</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in low_stock_products %}
+                                                <tr class="low-stock-row">
+                                                    <td class="bold-text">{{ item.product_id }}</td>
+                                                    <td>{{ item.name }}</td>
+                                                    <td>{{ item.category.name }}</td>
+                                                    <td><span class="stock-badge badge-danger">{{ item.qty }} left</span></td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="empty-status">
+                                    <p class="text-success"> All products have healthy stock levels!</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Best Selling Products -->
+                    <div class="grid-card best-sellers-card">
+                        <div class="card-header-accent border-purple">
+                            <h3> Top 5 Best Selling Items</h3>
+                        </div>
+                        <div class="card-body">
+                            {% if best_sellers %}
+                                <div class="best-sellers-list">
+                                    {% for item in best_sellers %}
+                                        <div class="best-seller-item">
+                                            <div class="rank-badge">{{ forloop.counter }}</div>
+                                            <div class="item-info">
+                                                <span class="item-name">{{ item.product__name }}</span>
+                                                <span class="item-meta">ID: {{ item.product__product_id }} | Price: Rs. {{ item.product__selling_price }}</span>
+                                            </div>
+                                            <div class="sold-qty-badge">
+                                                <span class="qty-num">{{ item.total_sold }}</span> sold
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="empty-status">
+                                    <p>No billing transactions found to calculate best sellers.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side column (Recent Invoices) -->
+                <div class="layout-column">
+                    <div class="grid-card recent-sales-card">
+                        <div class="card-header-accent border-blue">
+                            <h3>Recent 5 Transactions</h3>
+                        </div>
+                        <div class="card-body">
+                            {% if recent_sales %}
+                                <div class="table-scroll">
+                                    <table class="simple-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Invoice No</th>
+                                                <th>Date</th>
+                                                <th>Customer</th>
+                                                <th>Total</th>
+                                                <th>Profit</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for inv in recent_sales %}
+                                                <tr>
+                                                    <td class="bold-text">{{ inv.invoice_number }}</td>
+                                                    <td>{{ inv.date|date:"d M H:i" }}</td>
+                                                    <td>{{ inv.customer_name }}</td>
+                                                    <td class="amount-text">Rs. {{ inv.total_amount }}</td>
+                                                    <td class="profit-text text-success">Rs. {{ inv.total_profit }}</td>
+                                                    <td>
+                                                        <a href="{% url 'invoice_detail' inv.invoice_number %}" class="btn-view-table">🔍 Details</a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="empty-status">
+                                    <p>No invoices created yet. Go to Billing screen to make a sale!</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Tabbed Interface Card -->
+            <div class="grid-card reports-tabs-card">
+                <div class="card-header-accent border-indigo">
+                    <h3> Store Sales Logs & Report Registers</h3>
+                    <button class="btn-print" onclick="window.print()"> Print Dashboard / Reports</button>
+                </div>
+                
+                <!-- Tab Buttons -->
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchTab('daily-tab')"> Daily Report</button>
+                    <button class="tab-btn" onclick="switchTab('weekly-tab')"> Weekly Summary</button>
+                    <button class="tab-btn" onclick="switchTab('monthly-tab')">Monthly ledger</button>
+                    <button class="tab-btn" onclick="switchTab('custom-tab')"> Profit Range Analysis</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="tab-contents">
+                    
+                    <!-- 1. Daily Report Tab -->
+                    <div id="daily-tab" class="tab-pane active">
+                        <div class="filter-bar">
+                            <form method="GET" class="filter-form">
+                                <label for="daily_date">Select Date:</label>
+                                <input type="date" id="daily_date" name="daily_date" value="{{ daily_date }}" class="form-input">
+                                <button type="submit" class="btn-submit">Filter Log</button>
+                            </form>
+                        </div>
+
+                        <div class="tab-summary-row">
+                            <div class="summary-mini-card">
+                                <span>Turnover on {{ daily_date }}</span>
+                                <h3>Rs. {{ daily_sales_total }}</h3>
+                            </div>
+                            <div class="summary-mini-card">
+                                <span>Profit on {{ daily_date }}</span>
+                                <h3 class="text-success">Rs. {{ daily_profit_total }}</h3>
+                            </div>
+                            <div class="summary-mini-card">
+                                <span>Total Invoices</span>
+                                <h3>{{ daily_invoices.count }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <h4>Sales Log for {{ daily_date }}</h4>
+                            {% if daily_invoices %}
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice No</th>
+                                            <th>Time</th>
+                                            <th>Customer Name</th>
+                                            <th>Payment Method</th>
+                                            <th>Amount</th>
+                                            <th>Net Profit</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for inv in daily_invoices %}
+                                            <tr>
+                                                <td class="bold-text">{{ inv.invoice_number }}</td>
+                                                <td>{{ inv.date|date:"H:i A" }}</td>
+                                                <td>{{ inv.customer_name }}</td>
+                                                <td><span class="badge-payment">{{ inv.payment_method }}</span></td>
+                                                <td class="amount-text">Rs. {{ inv.total_amount }}</td>
+                                                <td class="profit-text text-success">Rs. {{ inv.total_profit }}</td>
+                                                <td>
+                                                    <a href="{% url 'invoice_detail' inv.invoice_number %}" class="btn-view-table">🔍 View</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="empty-status">
+                                    <p>No billing sales recorded for this date.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 2. Weekly Report Tab -->
+                    <div id="weekly-tab" class="tab-pane">
+                        <div class="tab-summary-row">
+                            <p class="summary-intro-text">Analysis of Sales and Profits for the past 4 weeks (calculated backward from today).</p>
+                        </div>
+
+                        <div class="weekly-cards-grid">
+                            {% for report in weekly_reports %}
+                                <div class="weekly-report-card">
+                                    <div class="weekly-header">
+                                        <h4>{{ report.label }}</h4>
+                                        <span class="invoice-count-badge">{{ report.invoice_count }} Invoices</span>
+                                    </div>
+                                    <div class="weekly-body">
+                                        <div class="weekly-stat">
+                                            <span>Weekly Turnover:</span>
+                                            <span class="bold-text">Rs. {{ report.sales }}</span>
+                                        </div>
+                                        <div class="weekly-stat">
+                                            <span>Weekly Profit:</span>
+                                            <span class="text-success bold-text">Rs. {{ report.profit }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Graphical progress visualizer -->
+                        <div class="visualizer-container">
+                            <h4>Turnover Comparison (Last 4 Weeks)</h4>
+                            <div class="bar-chart-container">
+                                {% for report in weekly_reports %}
+                                    <div class="bar-chart-item">
+                                        <span class="bar-label">{{ report.label }}</span>
+                                        <div class="bar-wrapper">
+                                            <div class="bar-fill sales-fill" style="width: {% if report.sales > 0 %}100%{% else %}0%{% endif %}; max-width: 100%;">
+                                                <span class="bar-value">Rs. {{ report.sales }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="bar-wrapper">
+                                            <div class="bar-fill profit-fill" style="width: {% if report.profit > 0 %}70%{% else %}0%{% endif %}; max-width: 100%;">
+                                                <span class="bar-value">Rs. {{ report.profit }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Monthly Report Tab -->
+                    <div id="monthly-tab" class="tab-pane">
+                        <div class="filter-bar">
+                            <form method="GET" class="filter-form">
+                                <label for="monthly_month">Select Month & Year:</label>
+                                <select id="monthly_month" name="monthly_month" class="form-input select-input">
+                                    {% for m_val, m_lbl in month_choices %}
+                                        <option value="{{ m_val }}" {% if m_val == monthly_month %}selected{% endif %}>{{ m_lbl }}</option>
+                                    {% endfor %}
+                                </select>
+                                <select id="monthly_year" name="monthly_year" class="form-input select-input">
+                                    {% for yr in year_choices %}
+                                        <option value="{{ yr }}" {% if yr == monthly_year %}selected{% endif %}>{{ yr }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn-submit">Filter Log</button>
+                            </form>
+                        </div>
+
+                        <div class="tab-summary-row">
+                            <div class="summary-mini-card">
+                                <span>Monthly Turnover</span>
+                                <h3>Rs. {{ monthly_sales_total }}</h3>
+                            </div>
+                            <div class="summary-mini-card">
+                                <span>Monthly Profit</span>
+                                <h3 class="text-success">Rs. {{ monthly_profit_total }}</h3>
+                            </div>
+                            <div class="summary-mini-card">
+                                <span>Total Month Invoices</span>
+                                <h3>{{ monthly_invoices.count }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <h4>Sales Log for Selection</h4>
+                            {% if monthly_invoices %}
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice No</th>
+                                            <th>Date & Time</th>
+                                            <th>Customer Name</th>
+                                            <th>Payment Method</th>
+                                            <th>Amount</th>
+                                            <th>Net Profit</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for inv in monthly_invoices %}
+                                            <tr>
+                                                <td class="bold-text">{{ inv.invoice_number }}</td>
+                                                <td>{{ inv.date|date:"d-M-Y H:i" }}</td>
+                                                <td>{{ inv.customer_name }}</td>
+                                                <td><span class="badge-payment">{{ inv.payment_method }}</span></td>
+                                                <td class="amount-text">Rs. {{ inv.total_amount }}</td>
+                                                <td class="profit-text text-success">Rs. {{ inv.total_profit }}</td>
+                                                <td>
+                                                    <a href="{% url 'invoice_detail' inv.invoice_number %}" class="btn-view-table">🔍 View</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="empty-status">
+                                    <p>No billing sales recorded for this month/year configuration.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 4. Custom Range & Profit Report Tab -->
+                    <div id="custom-tab" class="tab-pane">
+                        <div class="filter-bar">
+                            <form method="GET" class="filter-form">
+                                <label for="start_date">From:</label>
+                                <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="form-input">
+                                
+                                <label for="end_date">To:</label>
+                                <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="form-input">
+                                
+                                <button type="submit" class="btn-submit">Analyze Profit</button>
+                            </form>
+                        </div>
+
+                        <div class="tab-summary-row">
+                            <div class="summary-mini-card">
+                                <span>Total Revenue (A)</span>
+                                <h3>Rs. {{ custom_sales_total }}</h3>
+                            </div>
+                            <div class="summary-mini-card">
+                                <span>Est. Cost of Goods (B)</span>
+                                <h3>Rs. {{ custom_cost_total }}</h3>
+                            </div>
+                            <div class="summary-mini-card">
+                                <span>Net Profit (A - B)</span>
+                                <h3 class="text-success">Rs. {{ custom_profit_total }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <h4>Ledger for Period: {{ start_date }} to {{ end_date }}</h4>
+                            {% if custom_invoices %}
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice No</th>
+                                            <th>Date & Time</th>
+                                            <th>Customer Name</th>
+                                            <th>Revenue</th>
+                                            <th>COGS</th>
+                                            <th>Profit Margin</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for inv in custom_invoices %}
+                                            <tr>
+                                                <td class="bold-text">{{ inv.invoice_number }}</td>
+                                                <td>{{ inv.date|date:"d-M-Y H:i" }}</td>
+                                                <td>{{ inv.customer_name }}</td>
+                                                <td class="amount-text">Rs. {{ inv.total_amount }}</td>
+                                                <td class="cost-text">Rs. {{ inv.get_total_cost }}</td>
+                                                <td class="profit-text text-success">Rs. {{ inv.total_profit }}</td>
+                                                <td>
+                                                    <a href="{% url 'invoice_detail' inv.invoice_number %}" class="btn-view-table">🔍 View</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="empty-status">
+                                    <p>No billing transactions found for selected range.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    
+    <script>
+        function switchTab(tabId) {
+            
+            const panes = document.querySelectorAll('.tab-pane');
+            panes.forEach(pane => pane.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            
+            document.getElementById(tabId).classList.add('active');
+            
+           
+            buttons.forEach(btn => {
+                if (btn.getAttribute('onclick').includes(tabId)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        //  search query parameters
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('daily_date')) {
+                switchTab('daily-tab');
+            } else if (urlParams.has('monthly_month') || urlParams.has('monthly_year')) {
+                switchTab('monthly-tab');
+            } else if (urlParams.has('start_date') || urlParams.has('end_date')) {
+                switchTab('custom-tab');
+            } else {
+                switchTab('daily-tab');
+            }
+        });
+    </script>
+</body>
+</html>

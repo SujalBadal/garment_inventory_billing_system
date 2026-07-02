@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Category - Garment Billing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/edit_category.css' %}">
+</head>
+<body>
+    <div class="edit-wrapper">
+        <div class="edit-card">
+            <div class="card-header">
+                <h2>Edit Category</h2>
+                <p>Modify category name details</p>
+            </div>
+            
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form action="{% url 'edit_category' category.id %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Category Name</label>
+                    <input type="text" id="name" name="name" value="{{ category.name }}" required>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                    <a href="{% url 'categories_list' %}" class="btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
