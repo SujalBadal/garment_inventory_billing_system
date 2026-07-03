@@ -111,7 +111,7 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### Step 3: Run the Server
+
 Launch the development web server:
 ```bash
 python manage.py runserver
@@ -119,3 +119,8 @@ python manage.py runserver
 Now, open your web browser and navigate to `http://127.0.0.1:8000/`.
 
 *Note: Since the system uses custom session-based security, first sign up a Shop account (`/signup/`), then log in to access the store administration dashboard.*
+
+
+### **Live Link:** [https://sujalbadal.pythonanywhere.com](https://sujalbadal.pythonanywhere.com)
+
+
